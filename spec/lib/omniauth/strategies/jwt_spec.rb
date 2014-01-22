@@ -1,12 +1,16 @@
 require 'spec_helper'
 
 class TestLookup
-  def initialize(params)
-    @params = params
+  def initialize(request)
+    @request = request
   end
 
   def secret
     "test_secret"
+  end
+
+  def uid(decoded)
+    "foo"
   end
 end
 
@@ -24,12 +28,18 @@ describe OmniAuth::Strategies::JWT do
   }
 
   context "when lookup class is defined" do
-    let(:args) { [TestLookup] }
+    let(:args) { [TestLookup, {:uid_claim => TestLookup}] }
 
     it "uses the provided class to lookup the key" do
       encoded = JWT.encode({name: 'Bob', email: 'steve@example.com'}, "test_secret")
       get '/auth/jwt/callback?jwt=' + encoded
       expect(response_json["info"]["email"]).to eq("steve@example.com")
+    end
+
+    it "provides a UID for the signatory" do
+      encoded = JWT.encode({name: 'Bob', email: 'steve@example.com'}, "test_secret")
+      get '/auth/jwt/callback?jwt=' + encoded
+      expect(response_json["uid"]).to eq('foo')
     end
   end
 

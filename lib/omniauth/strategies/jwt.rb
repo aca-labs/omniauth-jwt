@@ -38,7 +38,13 @@ module OmniAuth
         fail! :claim_invalid, e
       end
 
-      uid{ decoded[options.uid_claim] }
+      uid do
+        if options.uid_claim.is_a?(String)
+          decoded[options.uid_claim]
+        else
+          uid_lookup.uid(decoded)
+        end
+      end
 
       extra do
         {:raw_info => decoded}
@@ -57,12 +63,16 @@ module OmniAuth
         if options.secret.is_a?(String)
           options.secret
         else
-          lookup.secret
+          secret_lookup.secret
         end
       end
 
-      def lookup
-        @lookup ||= options.secret.new(request.params)
+      def secret_lookup
+        @secret_lookup ||= options.secret.new(request)
+      end
+
+      def uid_lookup
+        @uid_lookup ||= options.uid_claim.new(request)
       end
     end
 
