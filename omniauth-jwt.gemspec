@@ -4,13 +4,13 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'omniauth/jwt/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "omniauth-jwt"
+  spec.name          = "sage-omniauth-jwt"
   spec.version       = Omniauth::JWT::VERSION
-  spec.authors       = ["Michael Bleigh"]
-  spec.email         = ["mbleigh@mbleigh.com"]
+  spec.authors       = ["Michael Bleigh", "Tobias Haar"]
+  spec.email         = ["mbleigh@mbleigh.com", "tobias.haar@sage.com"]
   spec.description   = %q{An OmniAuth strategy to accept JWT-based single sign-on.}
   spec.summary       = %q{An OmniAuth strategy to accept JWT-based single sign-on.}
-  spec.homepage      = "http://github.com/mbleigh/omniauth-jwt"
+  spec.homepage      = "http://github.com/Sage/omniauth-jwt"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
