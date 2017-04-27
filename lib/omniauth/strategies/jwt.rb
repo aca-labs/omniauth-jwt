@@ -5,7 +5,7 @@ require 'uv-rays'
 
 module OmniAuth
   module Strategies
-    VivantApi = UV::HttpEndpoint.new('https://api.internationaltowers.com', tls_options: {hosts: [{host_name: 'api.internationaltowers.com'}]})
+    VivantApi = UV::HttpEndpoint.new('https://api.internationaltowers.com', tls_options: {host_name: 'api.internationaltowers.com'})
 
     class JWT
       class ClaimInvalid < StandardError; end
