@@ -38,30 +38,27 @@ module OmniAuth
       def callback_phase
         return fail!(:missing_credentials) if missing_credentials?
 
-        req = JSON.generate({
-          username: params['username'],
-          password: params['password'],
-          appToken: options.app_token
-        })
-
-        response = VivantApi.post(path: options.auth_url, body: req, headers: {
-          'content-type' => 'application/json',
-          'Authorization' => "Bearer #{options.app_token}"
-        }).value
-
-        if response.status == 200
-          @decoded, _ = ::JWT.decode(JSON.parse(response.body)['userToken'], secret, options.algorithm)
-          @decoded = @decoded['userInfo']
-
-          (options.required_claims || []).each do |field|
-            raise ClaimInvalid.new("Missing required '#{field}' claim.") if !@decoded.key?(field.to_s)
-          end
-          raise ClaimInvalid.new("Missing required 'iat' claim.") if options.valid_within && !@decoded["iat"]
-          raise ClaimInvalid.new("'iat' timestamp claim is too skewed from present.") if options.valid_within && (Time.now.to_i - @decoded["iat"]).abs > options.valid_within
-
+        if params['token'] && !params['token'].empty?
+          parse_token(params['token'])
           super
         else
-          fail! :invalid_credentials
+          req = JSON.generate({
+            username: params['username'],
+            password: params['password'],
+            appToken: options.app_token
+          })
+
+          response = VivantApi.post(path: options.auth_url, body: req, headers: {
+            'content-type' => 'application/json',
+            'Authorization' => "Bearer #{options.app_token}"
+          }).value
+
+          if response.status == 200
+            parse_token(JSON.parse(response.body)['userToken'])
+            super
+          else
+            fail! :invalid_credentials
+          end
         end
       rescue ClaimInvalid => e
         fail! :claim_invalid, e
@@ -95,6 +92,17 @@ module OmniAuth
           secret_lookup.secret
         end
       end
+      
+      def parse_token(data)
+        @decoded, _ = ::JWT.decode(data, secret, options.algorithm)
+        @decoded = @decoded['userInfo']
+
+        (options.required_claims || []).each do |field|
+          raise ClaimInvalid.new("Missing required '#{field}' claim.") if !@decoded.key?(field.to_s)
+        end
+        raise ClaimInvalid.new("Missing required 'iat' claim.") if options.valid_within && !@decoded["iat"]
+        raise ClaimInvalid.new("'iat' timestamp claim is too skewed from present.") if options.valid_within && (Time.now.to_i - @decoded["iat"]).abs > options.valid_within
+      end
 
       def secret_lookup
         @secret_lookup ||= options.secret.new(request)
@@ -109,7 +117,7 @@ module OmniAuth
       end
 
       def missing_credentials?
-        params['username'].nil? or params['username'].empty? or params['password'].nil? or params['password'].empty?
+        (params['username'].nil? || params['username'].empty? || params['password'].nil? || params['password'].empty?) && (params['token'].nil? || params['token'].empty?)
       end
     end
 
