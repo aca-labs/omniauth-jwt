@@ -27,5 +27,5 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "jwt", "~> 1.0"
   spec.add_dependency "omniauth", "~> 1.1"
-  spec.add_dependency "uv-rays", "~> 2.1"
+  spec.add_dependency "uv-rays"
 end
