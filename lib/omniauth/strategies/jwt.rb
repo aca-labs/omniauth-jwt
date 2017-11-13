@@ -1,12 +1,10 @@
 require 'omniauth'
 require 'jwt'
 require 'json'
-require 'uv-rays'
+require 'net/http'
 
 module OmniAuth
   module Strategies
-    VivantApi = UV::HttpEndpoint.new('https://api.internationaltowers.com', tls_options: {host_name: 'api.internationaltowers.com'})
-
     class JWT
       class ClaimInvalid < StandardError; end
 
@@ -42,18 +40,23 @@ module OmniAuth
           parse_token(params['token'])
           super
         else
-          req = JSON.generate({
+          req = {
             username: params['username'],
             password: params['password'],
             appToken: options.app_token
-          })
+          }.to_json
 
-          response = VivantApi.post(path: options.auth_url, body: req, headers: {
-            'content-type' => 'application/json',
-            'Authorization' => "Bearer #{options.app_token}"
-          }).value
+          http = Net::HTTP.new('api.internationaltowers.com', 443)
+          http.use_ssl = true
 
-          if response.status == 200
+          request = Net::HTTP::Post.new(options.auth_url)
+          request.body = req
+          request.content_type = 'application/json'
+          request['Authorization'] = "Bearer #{options.app_token}"
+
+          response = http.request(request)
+
+          if response.code == '200'
             parse_token(JSON.parse(response.body)['userToken'])
             super
           else

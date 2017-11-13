@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'omniauth/jwt/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "aca-omniauth-jwt"
+  spec.name          = "aca-omniauth-jwt-blocking"
   spec.version       = Omniauth::JWT::VERSION
   spec.authors       = ["Michael Bleigh", "Tobias Haar"]
   spec.email         = ["mbleigh@mbleigh.com", "tobias.haar@sage.com"]
@@ -27,5 +27,4 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "jwt", "~> 1.0"
   spec.add_dependency "omniauth", "~> 1.1"
-  spec.add_dependency "uv-rays"
 end
