@@ -14,7 +14,7 @@ module OmniAuth
 
       args [:app_token, :secret]
 
-      option :title, 'Vivant Authentication'
+      option :title, 'Towers Authentication'
       option :app_token, nil
       option :secret, nil
       option :algorithm, 'HS256'
